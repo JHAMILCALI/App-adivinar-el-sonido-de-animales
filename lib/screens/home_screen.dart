@@ -27,11 +27,22 @@ class _HomeScreenState extends State<HomeScreen> {
       sonido: 'sounds/gato.mp3',
       imagen: 'assets/images/gato.png',
     ),
+    Animal(
+      nombre: 'loro',
+      sonido: 'sounds/loro.mp3',
+      imagen: 'assets/images/loro.png',
+    ),
+    Animal(
+      nombre: 'vaca',
+      sonido: 'sounds/vaca.mp3',
+      imagen: 'assets/images/vaca.png',
+    ),
   ];
 
   late Animal animalActual;
   bool mostrarResultado = false;
   bool respuestaCorrecta = false;
+  final List<Animal> animalesUsados = [];
 
   @override
   void initState() {
@@ -40,8 +51,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void seleccionarAnimal() {
+    final restantes =
+        animales.where((a) => !animalesUsados.contains(a)).toList();
+
+    if (restantes.isEmpty) {
+      setState(() {
+        mostrarResultado = true;
+        respuestaCorrecta = false;
+        animalActual = Animal(nombre: '', sonido: '', imagen: '');
+      });
+      return;
+    }
+
     final random = Random();
-    animalActual = animales[random.nextInt(animales.length)];
+    animalActual = restantes[random.nextInt(restantes.length)];
+    _controller.clear();
     mostrarResultado = false;
     respuestaCorrecta = false;
   }
@@ -51,6 +75,10 @@ class _HomeScreenState extends State<HomeScreen> {
       final respuesta = _controller.text.toLowerCase().trim();
       respuestaCorrecta = respuesta == animalActual.nombre;
       mostrarResultado = true;
+
+      if (respuestaCorrecta) {
+        animalesUsados.add(animalActual);
+      }
     });
   }
 
@@ -83,6 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Text('Verificar'),
             ),
             const SizedBox(height: 20),
+
+            // Resultado de la verificación
             if (mostrarResultado)
               respuestaCorrecta
                   ? Column(
@@ -96,6 +126,31 @@ class _HomeScreenState extends State<HomeScreen> {
                   : const ResultMessage(
                     message: '¡Incorrecto! Inténtalo de nuevo.',
                   ),
+
+            const SizedBox(height: 20),
+
+            // Botón para el siguiente animal (solo si hay más disponibles)
+            if (mostrarResultado &&
+                respuestaCorrecta &&
+                animalesUsados.length < animales.length)
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    seleccionarAnimal();
+                  });
+                },
+                child: const Text('Adivinar el siguiente animal'),
+              ),
+
+            // Mensaje si ya adivinó todos los animales
+            if (animalesUsados.length == animales.length)
+              const Padding(
+                padding: EdgeInsets.only(top: 16),
+                child: Text(
+                  '¡Felicidades! Has adivinado todos los animales.',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
           ],
         ),
       ),
