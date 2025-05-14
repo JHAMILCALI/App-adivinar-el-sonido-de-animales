@@ -129,7 +129,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 20),
 
-            // Botón para el siguiente animal (solo si hay más disponibles)
             if (mostrarResultado &&
                 respuestaCorrecta &&
                 animalesUsados.length < animales.length)
@@ -141,8 +140,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 child: const Text('Adivinar el siguiente animal'),
               ),
-
-            // Mensaje si ya adivinó todos los animales
             if (animalesUsados.length == animales.length)
               const Padding(
                 padding: EdgeInsets.only(top: 16),
